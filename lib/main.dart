@@ -4,7 +4,13 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
-  await dotenv.load(fileName: ".env");
+  // Fix: Don't crash if .env is missing (Production mode)
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    print("No .env file found. This is normal for Production.");
+  }
+
   runApp(const MyApp());
 }
 
