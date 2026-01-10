@@ -160,8 +160,19 @@ class _WeeklyPlanScreenState extends State<WeeklyPlanScreen> {
     });
 
     // 1. SETUP
-    final String azureEndpoint = dotenv.env['AZURE_ENDPOINT'] ?? "";
-    final String azureKey = dotenv.env['AZURE_KEY'] ?? "";
+    // 1. ENDPOINT: It is safe and easier to hardcode this URL here.
+    // (Azure Static Web Apps won't easily read dotenv for this).
+    final String azureEndpoint =
+        "https://diet-planner123-resource.cognitiveservices.azure.com/openai/deployments/gpt-5-nano/chat/completions?api-version=2024-12-01-preview";
+
+    // 2. KEY: Hybrid Logic (Production vs. Local)
+    // First, check if Azure/GitHub injected the key during the build
+    String azureKey = const String.fromEnvironment('AZURE_KEY');
+
+    // If not (meaning we are on your laptop), read from .env
+    if (azureKey.isEmpty) {
+      azureKey = dotenv.env['AZURE_KEY'] ?? "";
+    }
 
     try {
       final response = await http
