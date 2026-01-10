@@ -19,24 +19,27 @@ jobs:
         with:
           submodules: true
 
-      # 1. Install Flutter
+      # 1. Install Flutter (Use 'stable' to be safe)
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.38.5'
+          # flutter-version: '3.27.1' # Uncomment and add your version if this still fails
 
-      # 2. Build Web App & Inject Key
+      # 2. TRICK THE COMPILER: Create a dummy .env file
+      - name: Create dummy .env
+        run: touch .env
+
+      # 3. Build Web App & Inject Key
       - name: Build Flutter Web
         run: |
           flutter pub get
           flutter build web --release --dart-define=AZURE_KEY=${{ secrets.AZURE_KEY }}
 
-      # 3. Deploy to Azure
+      # 4. Deploy to Azure
       - name: Deploy to Azure Static Web Apps
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
-          # This matches the secret name in your screenshot:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_LIVELY_SAND_0132AB71E }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
